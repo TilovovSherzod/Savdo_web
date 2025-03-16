@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtma berish - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Buyurtma berish</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Yetkazib berish ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <form id="orderForm" method="post" action="{% url 'buyurtma_yaratish' %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="ism" class="form-label">Ism</label>
+                                <input type="text" class="form-control" id="ism" name="ism" value="{{ user.first_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="familiya" class="form-label">Familiya</label>
+                                <input type="text" class="form-control" id="familiya" name="familiya" value="{{ user.last_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefon" class="form-label">Telefon raqami</label>
+                                <input type="tel" class="form-control" id="telefon" name="telefon" value="{{ user.profil.telefon|default:'' }}" placeholder="+998 XX XXX XX XX" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="tolov_usuli" class="form-label">To'lov usuli</label>
+                                <select class="form-select" id="tolov_usuli" name="tolov_usuli" required>
+                                    <option value="naqd">Naqd pul</option>
+                                    <option value="karta">Karta orqali</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="manzil" class="form-label">Manzil</label>
+                                <textarea class="form-control" id="manzil" name="manzil" rows="3" required>{{ user.profil.manzil|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        {% if not user.is_authenticated %}
+                        <div class="alert alert-warning">
+                            <p><strong>Eslatma:</strong> Buyurtmani yakunlash uchun tizimga kirishingiz yoki ro'yxatdan o'tishingiz kerak.</p>
+                            <div class="d-flex gap-2 mt-2">
+                                <a href="{% url 'kirish' %}" class="btn btn-sm btn-outline-primary">Kirish</a>
+                                <a href="{% url 'royxatdan_otish' %}" class="btn btn-sm btn-outline-success">Ro'yxatdan o'tish</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            {% if user.is_authenticated %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Profil ma'lumotlari</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if user.profil.rasm %}
+                    <img src="{{ user.profil.rasm.url }}" alt="{{ user.username }}" class="rounded-circle img-thumbnail mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                    <img src="/static/images/default-profile.jpg" alt="{{ user.username }}" class="rounded-circle img-thumbnail mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endif %}
+                    <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+                    <p class="text-muted small mb-0">@{{ user.username }}</p>
+                    {% if user.profil.telefon %}
+                    <p class="text-muted small mb-0"><i class="fas fa-phone me-1"></i> {{ user.profil.telefon }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Buyurtma ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Maxsulotlar:</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for item in savat.savatlar.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <span>{{ item.maxsulot.nomi }}</span>
+                                    <small class="text-muted d-block">{{ item.miqdor }} x
+                                        {% if item.maxsulot.chegirma_narx %}
+                                        {{ item.maxsulot.chegirma_narx }}
+                                        {% else %}
+                                        {{ item.maxsulot.narx }}
+                                        {% endif %} so'm
+                                    </small>
+                                </div>
+                                <span>{{ item.jami_narx }} so'm</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Maxsulotlar:</span>
+                        <span>{{ savat.jami_narx }} so'm</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Yetkazib berish:</span>
+                        <span>Bepul</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Jami:</strong>
+                        <strong>{{ savat.jami_narx }} so'm</strong>
+                    </div>
+
+                    <button type="submit" form="orderForm" class="btn btn-primary w-100">
+                        Buyurtmani tasdiqlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Telefon raqami formati
+        const telefonInput = document.getElementById('telefon');
+        telefonInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0 && value[0] !== '+') {
+                value = '+' + value;
+            }
+            e.target.value = value;
+        });
+
+        // Formani tekshirish
+        const orderForm = document.getElementById('orderForm');
+        orderForm.addEventListener('submit', function(e) {
+            const ism = document.getElementById('ism').value.trim();
+            const familiya = document.getElementById('familiya').value.trim();
+            const telefon = document.getElementById('telefon').value.trim();
+            const manzil = document.getElementById('manzil').value.trim();
+
+            if (!ism || !familiya || !telefon || !manzil) {
+                e.preventDefault();
+                alert('Iltimos, barcha majburiy maydonlarni to\'ldiring');
+            }
+        });
+    });
+</script>
+{% endblock %}
+

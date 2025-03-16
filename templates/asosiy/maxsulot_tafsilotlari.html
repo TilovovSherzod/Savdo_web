@@ -1,0 +1,38 @@
+{% extends 'asosiy/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ maxsulot.nomi }}</h1>
+        <p>{{ maxsulot.tavsifi }}</p>
+        <p>Narxi: {{ maxsulot.narxi }}</p>
+
+        <div>
+            <button onclick="updateQuantity(-1)">-</button>
+            <input type="number" id="quantity" value="1" min="1">
+            <button onclick="updateQuantity(1)">+</button>
+        </div>
+
+        <button onclick="addToCartWithQuantity()">Savatga qo'shish</button>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateQuantity(change) {
+        const quantityInput = document.getElementById('quantity');
+        let quantity = parseInt(quantityInput.value) + change;
+
+        if (quantity < 1) {
+            quantity = 1;
+        }
+
+        quantityInput.value = quantity;
+    }
+
+    function addToCartWithQuantity() {
+        const quantity = parseInt(document.getElementById('quantity').value);
+        addToCart({{ maxsulot.id }}, quantity);
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Ombor boshqarish - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Ombor boshqarish</h1>
+    
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ombor harakati</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="barcode" class="form-label">Barcode</label>
+                            <input type="text" class="form-control" id="barcode" name="barcode" autofocus required>
+                            <div class="form-text">Barcode raqamini kiriting yoki skaner orqali o'qiting</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="miqdor" class="form-label">Miqdor</label>
+                            <input type="number" class="form-control" id="miqdor" name="miqdor" value="1" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="harakat_turi" class="form-label">Harakat turi</label>
+                            <select class="form-select" id="harakat_turi" name="harakat_turi" required>
+                                <option value="kirim">Kirim</option>
+                                <option value="chiqim">Chiqim</option>
+                                <option value="yo_qotish">Yo'qotish</option>
+                                <option value="muddati_otgan">Muddati o'tgan</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="izoh" class="form-label">Izoh</label>
+                            <textarea class="form-control" id="izoh" name="izoh" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Saqlash
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            {% if xabar %}
+            <div class="alert {% if 'muvaffaqiyatli' in xabar %}alert-success{% else %}alert-info{% endif %}">
+                {{ xabar }}
+            </div>
+            {% endif %}
+            
+            {% if maxsulot %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Maxsulot ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            {% if maxsulot.rasm %}
+                            <img src="{{ maxsulot.rasm.url }}" alt="{{ maxsulot.nomi }}" class="img-fluid rounded mb-3" style="max-height: 150px;">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height: 150px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h4>{{ maxsulot.nomi }}</h4>
+                            <p class="text-muted">{{ maxsulot.kategoriya.nomi }}</p>
+                            <p><strong>Barcode:</strong> {{ maxsulot.barcode }}</p>
+                            <p><strong>Narx:</strong> {{ maxsulot.narx }} so'm</p>
+                            {% if maxsulot.chegirma_narx %}
+                            <p><strong>Chegirma narx:</strong> {{ maxsulot.chegirma_narx }} so'm</p>
+                            {% endif %}
+                            <p><strong>Ombordagi miqdor:</strong> {{ maxsulot.miqdor }}</p>
+                            <p><strong>Holat:</strong> {% if maxsulot.mavjud %}<span class="text-success">Mavjud</span>{% else %}<span class="text-danger">Mavjud emas</span>{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'hisobotlar' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Hisobotlarga qaytish
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Barcode maydoniga fokus qilish
+        document.getElementById('barcode').focus();
+        
+        // Barcode maydoniga har safar sahifa yuklanganda fokus qilish
+        document.getElementById('barcode').addEventListener('blur', function() {
+            setTimeout(() => {
+                this.focus();
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}
+

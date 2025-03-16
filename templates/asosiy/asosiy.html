@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}SAVDO - Online Do'kon{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"></button>
+                </div>
+                <div class="carousel-inner rounded shadow">
+                    <div class="carousel-item active">
+                        <img src="/static/images/eng_sifatli.avif" class="d-block w-100" alt="Banner 1" onerror="this.src='/static/images/placeholder.jpg'">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>Eng sifatli maxsulotlar</h5>
+                            <p>Bizning do'konimizda eng sifatli maxsulotlarni topishingiz mumkin</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="/static/images/chegirma2.avif" class="d-block w-100" alt="Banner 2" onerror="this.src='/static/images/placeholder.jpg'">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>Chegirmalar</h5>
+                            <p>Maxsus chegirmalar bilan xarid qiling</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="/static/images/dastavka.avif" class="d-block w-100" alt="Banner 3" onerror="this.src='/static/images/placeholder.jpg'">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>Tezkor yetkazib berish</h5>
+                            <p>Buyurtmalaringiz tez va sifatli yetkazib beriladi</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Oldingi</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Keyingi</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kategoriyalar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">Kategoriyalar</h2>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for kategoriya in kategoriyalar %}
+                <div class="col">
+                    <a href="{% url 'asosiy' %}?kategoriya={{ kategoriya.id }}" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            {% if kategoriya.rasm %}
+                            <img src="{{ kategoriya.rasm.url }}" class="card-img-top" alt="{{ kategoriya.nomi }}" style="height: 150px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="fas fa-folder fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title text-center">{{ kategoriya.nomi }}</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Maxsulotlar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Maxsulotlar</h2>
+                {% if request.GET.kategoriya %}
+                <a href="{% url 'asosiy' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Barcha maxsulotlar
+                </a>
+                {% endif %}
+            </div>
+
+            {% if maxsulotlar %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                {% for maxsulot in maxsulotlar %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative product-image-container">
+                            <a href="{% url 'maxsulot_tafsilotlari' maxsulot.id %}">
+                                {% if maxsulot.rasm %}
+                                <img src="{{ maxsulot.rasm.url }}" class="card-img-top" alt="{{ maxsulot.nomi }}" style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </a>
+                            {% if maxsulot.chegirma_narx %}
+                            <span class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 rounded">Chegirma</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ maxsulot.nomi }}</h5>
+                            <p class="card-text text-muted">{{ maxsulot.tavsif|truncatechars:50 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if maxsulot.chegirma_narx %}
+                                    <span class="text-decoration-line-through text-muted">{{ maxsulot.narx }} so'm</span>
+                                    <span class="fw-bold text-danger">{{ maxsulot.chegirma_narx }} so'm</span>
+                                    {% else %}
+                                    <span class="fw-bold">{{ maxsulot.narx }} so'm</span>
+                                    {% endif %}
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="addToCart({{ maxsulot.id }})">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Maxsulotlar topilmadi
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Savatga qo'shildi modal -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addToCartModalLabel">Savatga qo'shildi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="cartModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Davom etish</button>
+                <a href="{% url 'savat' %}" class="btn btn-primary">Savatga o'tish</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Savat - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Savat</h1>
+    
+    {% if savat_maxsulotlar %}
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Savatdagi maxsulotlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Narx</th>
+                                    <th>Miqdor</th>
+                                    <th>Jami</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in savat_maxsulotlar %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3" style="width: 60px; height: 60px;">
+                                                {% if item.maxsulot.rasm %}
+                                                <img src="{{ item.maxsulot.rasm.url }}" alt="{{ item.maxsulot.nomi }}" class="img-fluid rounded">
+                                                {% else %}
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'maxsulot_tafsilotlari' item.maxsulot.id %}" class="text-decoration-none">
+                                                    {{ item.maxsulot.nomi }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if item.maxsulot.chegirma_narx %}
+                                        <span class="text-decoration-line-through text-muted d-block">{{ item.maxsulot.narx }} so'm</span>
+                                        <span class="text-danger">{{ item.maxsulot.chegirma_narx }} so'm</span>
+                                        {% else %}
+                                        {{ item.maxsulot.narx }} so'm
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm" style="width: 120px;">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="updateCartItemQuantity({{ item.maxsulot.id }}, {{ item.miqdor }} - 1)">-</button>
+                                            <input type="number" class="form-control text-center" value="{{ item.miqdor }}" min="1" onchange="updateCartItemQuantity({{ item.maxsulot.id }}, this.value)">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="updateCartItemQuantity({{ item.maxsulot.id }}, {{ item.miqdor }} + 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>{{ item.jami_narx }} so'm</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="updateCartItemQuantity({{ item.maxsulot.id }}, 0)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline-danger" onclick="clearCart()">
+                        <i class="fas fa-trash me-2"></i>Savatni tozalash
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Buyurtma ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Maxsulotlar:</span>
+                        <span id="cart-subtotal">{{ savat.jami_narx }} so'm</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Yetkazib berish:</span>
+                        <span>Bepul</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-bold">Jami:</span>
+                        <span class="fw-bold" id="cart-total">{{ savat.jami_narx }} so'm</span>
+                    </div>
+                    <a href="{% url 'buyurtma_yaratish' %}" class="btn btn-success w-100">
+                        <i class="fas fa-check-circle me-2"></i>Buyurtma berish
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Xarid qilishda davom etish</h5>
+                    <a href="{% url 'asosiy' %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Do'konga qaytish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+            <h3>Savatingiz bo'sh</h3>
+            <p class="text-muted">Savatingizda hozircha maxsulotlar yo'q</p>
+            <a href="{% url 'asosiy' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-arrow-left me-2"></i>Do'konga qaytish
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateCartItemQuantity(productId, quantity) {
+        fetch("/savat-yangilash/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                // Removed CSRF token header
+            },
+            body: JSON.stringify({
+                maxsulot_id: productId,
+                miqdor: quantity,
+            }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                // Sahifani yangilash
+                location.reload();
+            }
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+</script>
+{% endblock %}
+

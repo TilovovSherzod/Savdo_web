@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">{{ title }}</h1>
+    
+    <!-- Vaqt oralig'ini tanlash -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <label for="vaqt_oralig" class="form-label">Vaqt oralig'i</label>
+                    <select class="form-select" id="vaqt_oralig" name="vaqt_oralig" onchange="this.form.submit()">
+                        <option value="bugun" {% if vaqt_oralig == 'bugun' %}selected{% endif %}>Bugun</option>
+                        <option value="hafta" {% if vaqt_oralig == 'hafta' %}selected{% endif %}>Shu hafta</option>
+                        <option value="oy" {% if vaqt_oralig == 'oy' %}selected{% endif %}>Shu oy</option>
+                        <option value="yil" {% if vaqt_oralig == 'yil' %}selected{% endif %}>Shu yil</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Asosiy ko'rsatkichlar -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Jami savdo</h5>
+                    <p class="card-text fs-3 fw-bold text-primary">{{ jami_savdo }} so'm</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Jami foyda</h5>
+                    <p class="card-text fs-3 fw-bold text-success">{{ jami_foyda }} so'm</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Buyurtmalar soni</h5>
+                    <p class="card-text fs-3 fw-bold text-info">{{ buyurtmalar_soni }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Yo'qotilgan qiymat</h5>
+                    <p class="card-text fs-3 fw-bold text-danger">{{ yoqotilgan_qiymat }} so'm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eng ko'p sotilgan maxsulotlar -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Eng ko'p sotilgan maxsulotlar</h5>
+                </div>
+                <div class="card-body">
+                    {% if eng_kop_sotilgan %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Miqdor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in eng_kop_sotilgan %}
+                                <tr>
+                                    <td>{{ item.maxsulot__nomi }}</td>
+                                    <td>{{ item.jami_miqdor }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Ma'lumot mavjud emas</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Eng ko'p foyda keltirgan maxsulotlar</h5>
+                </div>
+                <div class="card-body">
+                    {% if eng_kop_foyda %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Foyda</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in eng_kop_foyda %}
+                                <tr>
+                                    <td>{{ item.maxsulot__nomi }}</td>
+                                    <td>{{ item.jami_foyda }} so'm</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Ma'lumot mavjud emas</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ombor ma'lumotlari -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Ombor ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Ombordagi maxsulotlar qiymati</h5>
+                                    <p class="card-text fs-4 fw-bold">{{ ombor_qiymati }} so'm</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Maxsulotlar soni</h5>
+                                    <p class="card-text fs-4 fw-bold">{{ ombor_maxsulotlar_soni }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Jami miqdor</h5>
+                                    <p class="card-text fs-4 fw-bold">{{ ombor_jami_miqdor }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Savdo dinamikasi -->
+    {% if kunlik_savdo %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Kunlik savdo dinamikasi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Sana</th>
+                                    <th>Savdo hajmi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in kunlik_savdo %}
+                                <tr>
+                                    <td>{{ item.kun|date:"d.m.Y" }}</td>
+                                    <td>{{ item.jami }} so'm</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Oylik savdo dinamikasi -->
+    {% if oylik_savdo %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Oylik savdo dinamikasi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Oy</th>
+                                    <th>Savdo hajmi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in oylik_savdo %}
+                                <tr>
+                                    <td>{{ item.oy|date:"F Y" }}</td>
+                                    <td>{{ item.jami }} so'm</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Boshqarish tugmalari -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'barcode_skaner' %}" class="btn btn-primary">
+                    <i class="fas fa-barcode me-2"></i>Barcode skaner
+                </a>
+                <a href="{% url 'maxsulot_sotish' %}" class="btn btn-success">
+                    <i class="fas fa-cash-register me-2"></i>Maxsulot sotish
+                </a>
+                <a href="{% url 'ombor_boshqarish' %}" class="btn btn-info">
+                    <i class="fas fa-warehouse me-2"></i>Ombor boshqarish
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
